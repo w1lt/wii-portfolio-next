@@ -62,7 +62,6 @@ function ExperiencePage() {
   return (
     <div className="max-w-4xl mx-auto p-8 h-full flex flex-col justify-center">
       <motion.h1
-        key="experience-title"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-4xl font-bold text-center mb-12 text-gray-800 dark:text-gray-100"
@@ -80,7 +79,6 @@ function ExperiencePage() {
         >
           {/* Curved snaking path with smooth corners */}
           <motion.path
-            key="experience-path"
             d="M 150 50 L 820 50 Q 850 50, 850 80 L 850 100 Q 850 130, 820 130 L 180 130 Q 150 130, 150 160 L 150 180 Q 150 210, 180 210 L 820 210 Q 850 210, 850 240 L 850 260 Q 850 290, 820 290 L 180 290 Q 150 290, 150 320 L 150 340 Q 150 370, 180 370 L 850 370"
             className="stroke-gray-300 dark:stroke-gray-600"
             strokeWidth="3"
@@ -99,10 +97,9 @@ function ExperiencePage() {
             { x: 150, y: 330, isRight: false }, // Left - Exodus (middle of vertical)
             { x: 850, y: 370, isRight: true }, // Right - ACM (end of line)
           ].map((pos, index) => (
-            <g key={`experience-dot-${index}`}>
+            <g key={index}>
               {/* Dot */}
               <motion.circle
-                key={`experience-circle-${index}`}
                 cx={pos.x}
                 cy={pos.y}
                 r="10"

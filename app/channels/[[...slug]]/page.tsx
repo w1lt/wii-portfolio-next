@@ -180,7 +180,7 @@ export default function ChannelsPage() {
           style={{ minHeight: "100vh", minWidth: "100vw" }}
         >
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-grow px-12">
+          <div key={currentChannel} className="overflow-y-auto flex-grow px-12">
             {getCurrentContent()}
           </div>
 
