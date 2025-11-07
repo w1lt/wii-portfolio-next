@@ -85,6 +85,27 @@ npm run build
 npm start
 ```
 
+## Deploy to Vercel
+
+The easiest way to deploy your Next.js app is to use [Vercel](https://vercel.com):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/w1lt/wii-portfolio-next)
+
+### Environment Variables
+
+Make sure to add these environment variables in your Vercel project settings:
+
+- `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
+- `SPOTIFY_REFRESH_TOKEN`
+
+Alternatively, deploy using the Vercel CLI:
+
+```bash
+npm i -g vercel
+vercel
+```
+
 ## Project Structure
 
 ```
