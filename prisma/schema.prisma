@@ -1,0 +1,23 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GuestbookEntry {
+  id          String   @id @default(cuid())
+  message     String
+  ipAddress   String?
+  fingerprint String?
+  createdAt   DateTime @default(now())
+
+  @@map("guestbook_entries")
+  @@index([ipAddress])
+  @@index([fingerprint])
+}
+

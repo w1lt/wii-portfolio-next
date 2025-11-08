@@ -1,11 +1,16 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import { SoundProvider } from "@/contexts/SoundContext";
 
 export const metadata: Metadata = {
   title: "Will Whitehead - Portfolio",
   description: "Personal portfolio of Will Whitehead",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -14,13 +19,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>
-        <ThemeProvider>
-          <SoundProvider>
-            <div className="gridlines">{children}</div>
-          </SoundProvider>
-        </ThemeProvider>
+    <html lang="en">
+      <body>
+        <SoundProvider>
+          <div className="gridlines">{children}</div>
+        </SoundProvider>
       </body>
     </html>
   );

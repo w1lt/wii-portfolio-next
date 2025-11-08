@@ -17,13 +17,12 @@ const links = [
     route: "/spotify",
     gradient: "from-green-800 via-green-900 to-black",
   },
-  // {
-  //   name: "settings",
-  //   icon: "⚙️",
-  //   route: "/settings",
-  //   gradient: "from-gray-600 via-slate-600 to-zinc-800",
-  // },
+  {
+    name: "resume",
+    icon: "📄",
+    route: "/resume",
+    gradient: "from-purple-800 via-purple-900 to-black",
+  },
 ];
 
 export default links;
-

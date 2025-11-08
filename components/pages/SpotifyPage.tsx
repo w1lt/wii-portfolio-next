@@ -112,8 +112,8 @@ function SpotifyPage() {
   }, [track?.isPlaying, track?.durationMs, track?.songUrl]);
 
   return (
-    <div className="flex flex-col items-center p-6 bg-white dark:bg-gray-900 rounded-lg">
-      <h1 className="text-4xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
+    <div className="flex flex-col items-center p-6 bg-white rounded-lg">
+      <h1 className="text-4xl font-bold text-center mb-6 text-gray-900">
         {track?.isPlaying ? "Currently Listening" : "Last Played"}
       </h1>
 
@@ -132,27 +132,27 @@ function SpotifyPage() {
             >
               {/* Album art skeleton - match exact sizing of real content */}
               <div
-                className="p-8 w-full flex justify-center"
+                className="p-4 md:p-8 w-full flex justify-center"
                 style={{ perspective: "1000px" }}
               >
                 <div
                   className="relative aspect-square"
                   style={{
-                    width: "min(30vw, 40vh)",
+                    width: "min(80vw, 40vh)",
                     maxWidth: "100%",
                   }}
                 >
-                  <div className="w-full h-full bg-gray-300 dark:bg-gray-700 rounded-full shadow-2xl"></div>
+                  <div className="w-full h-full bg-gray-300 rounded-full shadow-2xl"></div>
                 </div>
               </div>
 
               {/* Text skeleton - match exact sizing */}
               <div className="w-full px-4">
                 {/* Song title skeleton - matches text-2xl */}
-                <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-3/4 max-w-md mb-2"></div>
+                <div className="h-8 bg-gray-300 rounded w-3/4 max-w-md mb-2"></div>
 
                 {/* Artist skeleton - matches text-xl */}
-                <div className="h-7 bg-gray-300 dark:bg-gray-700 rounded w-1/2 max-w-md"></div>
+                <div className="h-7 bg-gray-300 rounded w-1/2 max-w-md"></div>
               </div>
             </motion.div>
           )}
@@ -164,7 +164,7 @@ function SpotifyPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="text-xl text-red-600 dark:text-red-400 mb-4"
+              className="text-xl text-red-600 mb-4"
             >
               Unable to load Spotify data. Check back later!
             </motion.p>
@@ -182,13 +182,13 @@ function SpotifyPage() {
               className="flex flex-col items-center mb-6 max-w-md absolute"
             >
               <div
-                className="p-8 w-full flex justify-center"
+                className="p-4 md:p-8 w-full flex justify-center"
                 style={{ perspective: "1000px" }}
               >
                 <div
                   className="relative aspect-square"
                   style={{
-                    width: "min(30vw, 40vh)",
+                    width: "min(80vw, 40vh)",
                     maxWidth: "100%",
                   }}
                 >
@@ -254,13 +254,13 @@ function SpotifyPage() {
               </div>
               <div className="w-full px-4">
                 <h2
-                  className="text-2xl font-bold truncate max-w-md cursor-pointer hover:underline text-gray-900 dark:text-gray-100"
+                  className="text-lg md:text-2xl font-bold truncate max-w-md cursor-pointer hover:underline text-gray-900"
                   onClick={() => window.open(track.songUrl, "_blank")}
                 >
                   {track.name}
                 </h2>
                 <p
-                  className="text-xl text-gray-600 dark:text-gray-400 truncate max-w-md cursor-pointer hover:underline"
+                  className="text-base md:text-xl text-gray-600 truncate max-w-md cursor-pointer hover:underline"
                   onClick={() => window.open(track.artistUrl, "_blank")}
                 >
                   {track.artist}
@@ -269,13 +269,13 @@ function SpotifyPage() {
                 {/* Progress bar - only show if currently playing */}
                 {track.isPlaying && track.durationMs && (
                   <div className="w-full max-w-md mx-auto mb-4">
-                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>{formatTime(currentProgress)}</span>
                       <span>{formatTime(track.durationMs)}</span>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-green-500 dark:bg-green-400 h-2 rounded-full transition-all duration-1000"
+                        className="bg-green-500 h-2 rounded-full transition-all duration-1000"
                         style={{
                           width: `${
                             (currentProgress / track.durationMs) * 100
@@ -287,7 +287,7 @@ function SpotifyPage() {
                 )}
 
                 {track.playedAt && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  <p className="text-sm text-gray-500 mb-4">
                     Played {new Date(track.playedAt).toLocaleString()}
                   </p>
                 )}
@@ -302,7 +302,7 @@ function SpotifyPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="text-xl text-gray-700 dark:text-gray-300 mb-6"
+              className="text-xl text-gray-700 mb-6"
             >
               No recent tracks found. Check back later!
             </motion.p>

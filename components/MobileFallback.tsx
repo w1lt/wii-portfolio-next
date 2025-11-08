@@ -2,8 +2,8 @@
 
 export default function MobileFallback() {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 min-h-screen bg-zinc-950 dark:bg-black text-white relative">
-      <span className="absolute top-4 text-sm text-zinc-400 dark:text-zinc-500">
+    <div className="flex flex-col items-center justify-center gap-2 min-h-screen bg-zinc-950 text-white relative">
+      <span className="absolute top-4 text-sm text-zinc-400">
         visit on desktop for full experience
       </span>
       <a href="https://l.willwhitehead.com/" className="hover:underline">

@@ -24,7 +24,7 @@ export default function ProjectsPage() {
       icon: "🚪",
       description: "AI-powered smart doorbell with facial recognition",
       language: "Python",
-      link: "https://github.com/w1lt/opensesame",
+      link: "https://github.com/bkfl-corp/OpenSesame",
     },
     {
       name: "hackku",
@@ -32,7 +32,7 @@ export default function ProjectsPage() {
       description:
         "Registration & management system for 500+ hackathon attendees",
       language: "TypeScript",
-      link: "https://github.com/w1lt/hackku-24",
+      link: "https://github.com/the-hackku/hackku25-website",
     },
   ];
 
@@ -41,9 +41,9 @@ export default function ProjectsPage() {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-5xl mx-auto p-6 bg-white dark:bg-gray-900 rounded-lg"
+      className="max-w-5xl mx-auto p-6 bg-white rounded-lg"
     >
-      <h1 className="text-4xl font-bold text-center mb-10 text-gray-900 dark:text-gray-100">
+      <h1 className="text-4xl font-bold text-center mb-10 text-gray-900">
         Projects
       </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -53,22 +53,22 @@ export default function ProjectsPage() {
             href={project.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200 cursor-pointer group"
+            className="relative bg-white p-6 rounded-2xl border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-200 cursor-pointer group"
           >
             {/* External link icon */}
-            <div className="absolute top-4 right-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+            <div className="absolute top-4 right-4 text-gray-400 group-hover:text-gray-700 transition-colors">
               <IconExternalLink size={20} />
             </div>
 
             {/* Project name */}
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
               {project.name}
             </h2>
 
             {/* Icon and description */}
             <div className="flex items-start gap-3 mb-4">
               <span className="text-2xl">{project.icon}</span>
-              <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed flex-1">
+              <p className="text-gray-600 text-sm leading-relaxed flex-1">
                 {project.description}
               </p>
             </div>
@@ -78,17 +78,15 @@ export default function ProjectsPage() {
               <div
                 className={`w-3 h-3 rounded-full ${
                   project.language === "TypeScript"
-                    ? "bg-blue-500 dark:bg-blue-400"
+                    ? "bg-blue-500"
                     : project.language === "JavaScript"
-                    ? "bg-yellow-500 dark:bg-yellow-400"
+                    ? "bg-yellow-500"
                     : project.language === "Python"
-                    ? "bg-green-500 dark:bg-green-400"
-                    : "bg-gray-500 dark:bg-gray-400"
+                    ? "bg-green-500"
+                    : "bg-gray-500"
                 }`}
               ></div>
-              <span className="text-gray-500 dark:text-gray-400 text-sm">
-                {project.language}
-              </span>
+              <span className="text-gray-500 text-sm">{project.language}</span>
             </div>
           </a>
         ))}
@@ -96,4 +94,3 @@ export default function ProjectsPage() {
     </motion.div>
   );
 }
-

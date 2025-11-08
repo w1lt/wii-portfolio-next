@@ -44,8 +44,8 @@ function HomePage() {
     setFadeOut(true);
 
     setTimeout(() => {
-      // Navigate to channels page with clean URL
-      router.push(route.replace("/", "/channels/"));
+      // Navigate to channel page
+      router.push(route);
     }, 250);
   };
 
@@ -60,7 +60,7 @@ function HomePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="h-screen flex flex-col"
+      className="h-screen flex flex-col overflow-y-auto md:overflow-hidden"
     >
       <motion.div
         initial="initial"
@@ -68,13 +68,13 @@ function HomePage() {
         variants={fadeOutVariants}
         className="relative flex-1 flex flex-col"
       >
-        {/* Main content area that takes up 75% of screen height */}
-        <div className="flex flex-col items-center justify-center h-[75vh] pt-[5vh]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 xl:gap-8">
+        {/* Main content area that takes up 75% of screen height on desktop */}
+        <div className="flex flex-col items-center justify-center py-8 md:h-[75vh] md:pt-[5vh] md:py-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-4 lg:gap-6 xl:gap-8 px-4">
             {links.map((channel, index) => (
               <div
                 key={index}
-                className="aspect-[5/3] w-[80vw] sm:w-[40vw] lg:w-[20vw] xl:w-[18vw] max-w-[320px] min-w-[200px]"
+                className="aspect-[5/3] w-full sm:w-[40vw] lg:w-[20vw] xl:w-[18vw] max-w-[400px] md:max-w-[320px] min-w-[280px] md:min-w-[200px] hover:z-10"
               >
                 <ChannelComponent
                   channel={channel}
@@ -87,11 +87,11 @@ function HomePage() {
             {Array.from({ length: numPlaceholders }).map((_, index) => (
               <div
                 key={index}
-                className="relative border border-gray-300 dark:border-gray-700 rounded-3xl shadow-lg flex-col items-center justify-center overflow-hidden group bg-gray-300 dark:bg-gray-800 hidden sm:flex aspect-[5/3] w-[80vw] sm:w-[40vw] lg:w-[20vw] xl:w-[18vw] max-w-[320px] min-w-[200px]"
+                className="relative border border-gray-300 rounded-3xl shadow-lg flex-col items-center justify-center overflow-hidden group bg-gray-300 hidden sm:flex aspect-[5/3] w-[80vw] sm:w-[40vw] lg:w-[20vw] xl:w-[18vw] max-w-[320px] min-w-[200px]"
               >
                 <div className="p-4 flex flex-col items-center justify-center z-10">
                   <p className="text-6xl opacity-0">e</p>
-                  <p className="text-md font-bold mt-2 text-center text-gray-400 dark:text-gray-500">
+                  <p className="text-md font-bold mt-2 text-center text-gray-400">
                     willwhitehead.com
                   </p>
                 </div>
@@ -120,19 +120,19 @@ function HomePage() {
             transition={{
               duration: 0.25,
             }}
-            className="fixed bg-white dark:bg-black flex justify-center items-center"
+            className="fixed bg-white flex justify-center items-center"
           >
             <div className="text-center">
               <p className="text-6xl">{links[zoom].icon}</p>
-              <p className="text-xl font-semibold mt-2 text-gray-900 dark:text-white">
+              <p className="text-xl font-semibold mt-2 text-gray-900">
                 {links[zoom].name}
               </p>
             </div>
           </motion.div>
         )}
 
-        {/* Render footer only if not on mobile - positioned in the bottom 25% */}
-        <div className=" sm:block flex items-center justify-center h-[25vh]">
+        {/* Render footer only on desktop - positioned in the bottom 25% */}
+        <div className="hidden md:flex items-center justify-center h-[25vh]">
           <HomeFooter />
         </div>
       </motion.div>

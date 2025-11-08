@@ -2,7 +2,7 @@
 
 @layer base {
   body {
-    @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200;
+    @apply bg-white text-gray-900;
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
@@ -76,11 +76,11 @@
 }
 
 .wii-icon {
-  @apply bg-gray-100 dark:bg-gray-800;
+  @apply bg-gray-100
 }
 
 .mail-icon {
-  @apply bg-gray-100 dark:bg-gray-800;
+  @apply bg-gray-100
 }
 
 @keyframes blink {
