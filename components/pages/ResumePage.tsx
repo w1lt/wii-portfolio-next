@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { IconDownload } from "@tabler/icons-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 
 // Dynamically import react-pdf components with no SSR
@@ -22,6 +22,7 @@ function ResumePage() {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageWidth, setPageWidth] = useState<number>(800);
   const [mounted, setMounted] = useState(false);
+  const [pdfLoaded, setPdfLoaded] = useState(false);
 
   useEffect(() => {
     // Configure PDF.js worker on client side only
@@ -41,6 +42,11 @@ function ResumePage() {
       const containerWidth = Math.min(window.innerWidth - 100, 800);
       setPageWidth(containerWidth);
     }
+
+    // Small delay to ensure rendering completes
+    setTimeout(() => {
+      setPdfLoaded(true);
+    }, 100);
   }
 
   if (!mounted) {
@@ -73,7 +79,28 @@ function ResumePage() {
       </h1>
 
       <div className="relative">
-        <div className="rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+        {/* Loading overlay */}
+        <AnimatePresence>
+          {!pdfLoaded && (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 flex items-center justify-center h-[1000px] bg-gray-100 rounded-lg shadow-lg border border-gray-200 z-20"
+            >
+              <p className="text-gray-600">Loading PDF...</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* PDF content - always rendered but initially hidden */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: pdfLoaded ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          className="rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+        >
           <Document
             file="/Will_Whitehead_Resume.pdf"
             onLoadSuccess={onDocumentLoadSuccess}
@@ -99,16 +126,21 @@ function ResumePage() {
               />
             ))}
           </Document>
-        </div>
+        </motion.div>
 
-        {/* Download button in top-right corner */}
-        <a
-          href="/resume/pdf"
-          className="absolute top-4 right-4 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md flex items-center space-x-2 hover:bg-blue-700 transition duration-300 cursor-pointer z-10"
-        >
-          <IconDownload size={20} />
-          <span>Download</span>
-        </a>
+        {/* Download button in top-right corner - hidden on mobile */}
+        {pdfLoaded && (
+          <motion.a
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+            href="/resume/pdf"
+            className="hidden md:flex absolute top-4 right-4 px-4 py-2 bg-blue-600 text-white rounded-md shadow-md items-center space-x-2 hover:bg-blue-700 transition duration-300 cursor-pointer z-10"
+          >
+            <IconDownload size={20} />
+            <span>Download</span>
+          </motion.a>
+        )}
       </div>
     </motion.div>
   );
