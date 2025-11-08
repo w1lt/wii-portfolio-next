@@ -227,10 +227,6 @@ export default function Page() {
     zoomOut: {
       scale: 0.5,
       opacity: 0,
-      transition: {
-        duration: 0.2,
-        ease: "easeInOut",
-      },
     },
   };
 
