@@ -38,7 +38,6 @@ function MacStatusPage() {
   const [statuses, setStatuses] = useState<MacStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [processesExpanded, setProcessesExpanded] = useState(false);
 
   useEffect(() => {
     fetchStatuses();
@@ -83,14 +82,6 @@ function MacStatusPage() {
     } else {
       return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
     }
-  };
-
-  const formatProcessMemory = (bytes: number) => {
-    const mb = bytes / (1024 * 1024);
-    if (mb >= 1024) {
-      return `${(mb / 1024).toFixed(2)} GB`;
-    }
-    return `${mb.toFixed(2)} MB`;
   };
 
   const getWifiSignalStrength = (rssi: number | null) => {
@@ -246,7 +237,7 @@ function MacStatusPage() {
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-sm text-gray-700 font-medium">
-                    Battery {latestStatus.isCharging ? "🔌" : ""}
+                    Battery {latestStatus.isCharging && "(Charging)"}
                   </span>
                   <span className="text-sm text-gray-900 font-bold">
                     {latestStatus.batteryPercent}%
@@ -309,50 +300,6 @@ function MacStatusPage() {
               </p>
             </div>
           </div>
-
-          {/* Top Processes - Collapsible */}
-          {latestStatus.topProcessesByMemory &&
-            latestStatus.topProcessesByMemory.length > 0 && (
-              <div className="pt-2 border-t border-gray-200">
-                <button
-                  onClick={() => setProcessesExpanded(!processesExpanded)}
-                  className="w-full flex justify-between items-center text-sm text-gray-700 font-medium hover:text-gray-900 transition-colors"
-                >
-                  <span>Top Processes by Memory</span>
-                  <span className="text-gray-500">
-                    {processesExpanded ? "▼" : "▶"}
-                  </span>
-                </button>
-                {processesExpanded && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="mt-3 space-y-2"
-                  >
-                    {latestStatus.topProcessesByMemory.map((process, index) => (
-                      <div
-                        key={`${process.pid}-${index}`}
-                        className="flex justify-between items-center text-xs py-1.5 px-2 bg-gray-50 rounded"
-                      >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <span className="text-gray-500 font-mono">
-                            {process.pid}
-                          </span>
-                          <span className="text-gray-900 font-medium truncate">
-                            {process.name}
-                          </span>
-                        </div>
-                        <span className="text-gray-700 font-medium ml-2">
-                          {formatProcessMemory(process.memory)}
-                        </span>
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
-              </div>
-            )}
         </motion.div>
       )}
     </motion.div>
