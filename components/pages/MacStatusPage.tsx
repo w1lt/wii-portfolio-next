@@ -285,14 +285,6 @@ function MacStatusPage() {
                 )}
               </div>
             )}
-            {latestStatus.activeProcessCount != null && (
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Processes</p>
-                <p className="text-gray-900 font-medium text-sm">
-                  {latestStatus.activeProcessCount}
-                </p>
-              </div>
-            )}
             <div>
               <p className="text-xs text-gray-500 mb-1">Last Updated</p>
               <p className="text-gray-900 font-medium text-sm">
