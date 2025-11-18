@@ -53,6 +53,12 @@ export async function POST(request: NextRequest) {
         memoryUsagePercent: body.memoryUsagePercent != null ? body.memoryUsagePercent : null,
         uptime: body.uptime || null,
         batteryPercent: body.batteryPercent != null ? body.batteryPercent : null,
+        isCharging: body.isCharging != null ? body.isCharging : null,
+        screenBrightness: body.screenBrightness != null ? body.screenBrightness : null,
+        wifiSSID: body.wifiSSID || null,
+        wifiRSSI: body.wifiRSSI != null ? body.wifiRSSI : null,
+        activeProcessCount: body.activeProcessCount != null ? body.activeProcessCount : null,
+        topProcessesByMemory: body.topProcessesByMemory ? JSON.stringify(body.topProcessesByMemory) : null,
         timestamp: new Date(body.timestamp),
       },
     });

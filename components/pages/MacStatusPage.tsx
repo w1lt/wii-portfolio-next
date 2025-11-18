@@ -4,6 +4,12 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { getMacStatuses } from "@/app/actions/mac-status";
 
+interface Process {
+  name: string;
+  memory: number;
+  pid: number;
+}
+
 interface MacStatus {
   id: string;
   deviceId: string;
@@ -18,6 +24,12 @@ interface MacStatus {
   memoryUsagePercent: number | null;
   uptime: number | null;
   batteryPercent: number | null;
+  isCharging: boolean | null;
+  screenBrightness: number | null;
+  wifiSSID: string | null;
+  wifiRSSI: number | null;
+  activeProcessCount: number | null;
+  topProcessesByMemory: Process[] | null;
   timestamp: string;
   receivedAt: string;
 }
@@ -26,6 +38,7 @@ function MacStatusPage() {
   const [statuses, setStatuses] = useState<MacStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [processesExpanded, setProcessesExpanded] = useState(false);
 
   useEffect(() => {
     fetchStatuses();
@@ -52,16 +65,6 @@ function MacStatusPage() {
     return `${gb.toFixed(2)} GB`;
   };
 
-  const formatUptime = (seconds: number | null) => {
-    if (!seconds) return "N/A";
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    if (days > 0) return `${days}d ${hours}h ${minutes}m`;
-    if (hours > 0) return `${hours}h ${minutes}m`;
-    return `${minutes}m`;
-  };
-
   const formatRelativeTime = (dateString: string) => {
     const now = new Date();
     const then = new Date(dateString);
@@ -82,49 +85,92 @@ function MacStatusPage() {
     }
   };
 
+  const formatProcessMemory = (bytes: number) => {
+    const mb = bytes / (1024 * 1024);
+    if (mb >= 1024) {
+      return `${(mb / 1024).toFixed(2)} GB`;
+    }
+    return `${mb.toFixed(2)} MB`;
+  };
+
+  const getWifiSignalStrength = (rssi: number | null) => {
+    if (rssi === null) return "N/A";
+    if (rssi >= -50) return "Excellent";
+    if (rssi >= -60) return "Good";
+    if (rssi >= -70) return "Fair";
+    return "Poor";
+  };
+
+  const getProgressColor = (
+    percent: number | null,
+    type: "cpu" | "memory" | "battery" = "cpu"
+  ) => {
+    if (percent === null) return "bg-gray-300";
+    if (type === "battery") {
+      if (percent > 50) return "bg-green-500";
+      if (percent > 20) return "bg-yellow-500";
+      return "bg-red-500";
+    }
+    if (percent < 50) return "bg-green-500";
+    if (percent < 80) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
   // Get the most recent status (single device)
-  const latestStatus = statuses.length > 0 
-    ? statuses.sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      )[0]
-    : null;
+  const latestStatus =
+    statuses.length > 0
+      ? statuses.sort(
+          (a, b) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        )[0]
+      : null;
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-5xl mx-auto p-6 bg-white rounded-lg"
+      >
         <h1 className="text-4xl font-bold text-center mb-6 text-gray-900">
           Mac Status
         </h1>
         <div className="flex items-center justify-center h-64">
           <p className="text-gray-600">Loading...</p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-5xl mx-auto p-6 bg-white rounded-lg"
+      >
         <h1 className="text-4xl font-bold text-center mb-6 text-gray-900">
           Mac Status
         </h1>
         <div className="flex items-center justify-center h-64">
           <p className="text-red-600">{error}</p>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-6">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-3xl md:text-4xl font-bold text-center mb-6 md:mb-8 text-gray-900"
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-5xl mx-auto p-6 bg-white rounded-lg"
+    >
+      <h1 className="text-4xl font-bold text-center mb-6 text-gray-900">
         Mac Status
-      </motion.h1>
+      </h1>
 
       {!latestStatus ? (
         <div className="text-center py-12">
@@ -134,83 +180,182 @@ function MacStatusPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          transition={{ delay: 0.1 }}
+          className="space-y-4"
         >
-          <div className="text-center mb-4">
-            <p className="text-sm text-gray-500">
-              Updated {formatRelativeTime(latestStatus.timestamp)}
-            </p>
+          {/* Performance Metrics - Horizontal Charts */}
+          <div className="space-y-3">
+            {/* CPU Usage */}
+            {latestStatus.cpuUsagePercent != null && (
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-700 font-medium">CPU</span>
+                  <span className="text-sm text-gray-900 font-bold">
+                    {latestStatus.cpuUsagePercent.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${latestStatus.cpuUsagePercent}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className={`h-2.5 rounded-full ${getProgressColor(
+                      latestStatus.cpuUsagePercent,
+                      "cpu"
+                    )}`}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Memory Usage */}
+            {latestStatus.memoryUsagePercent != null && (
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-700 font-medium">
+                    Memory
+                  </span>
+                  <span className="text-sm text-gray-900 font-bold">
+                    {latestStatus.memoryUsagePercent.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${latestStatus.memoryUsagePercent}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className={`h-2.5 rounded-full ${getProgressColor(
+                      latestStatus.memoryUsagePercent,
+                      "memory"
+                    )}`}
+                  />
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mt-0.5">
+                  <span>
+                    {latestStatus.memoryUsed
+                      ? formatMemory(latestStatus.memoryUsed)
+                      : "N/A"}{" "}
+                    / {formatMemory(latestStatus.totalMemory)}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Battery */}
+            {latestStatus.batteryPercent != null && (
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-sm text-gray-700 font-medium">
+                    Battery {latestStatus.isCharging ? "🔌" : ""}
+                  </span>
+                  <span className="text-sm text-gray-900 font-bold">
+                    {latestStatus.batteryPercent}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${latestStatus.batteryPercent}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className={`h-2.5 rounded-full ${getProgressColor(
+                      latestStatus.batteryPercent,
+                      "battery"
+                    )}`}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          {/* Additional Info - Compact Horizontal */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm pt-2 border-t border-gray-200">
+            {latestStatus.screenBrightness != null && (
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Screen</p>
+                <p className="text-gray-900 font-medium text-sm">
+                  {latestStatus.screenBrightness.toFixed(0)}%
+                </p>
+              </div>
+            )}
+            {latestStatus.wifiSSID && (
+              <div>
+                <p className="text-xs text-gray-500 mb-1">WiFi</p>
+                <p
+                  className="text-gray-900 font-medium text-sm truncate"
+                  title={latestStatus.wifiSSID}
+                >
+                  {latestStatus.wifiSSID}
+                </p>
+                {latestStatus.wifiRSSI != null && (
+                  <p className="text-xs text-gray-500">
+                    {getWifiSignalStrength(latestStatus.wifiRSSI)} (
+                    {latestStatus.wifiRSSI} dBm)
+                  </p>
+                )}
+              </div>
+            )}
+            {latestStatus.activeProcessCount != null && (
+              <div>
+                <p className="text-xs text-gray-500 mb-1">Processes</p>
+                <p className="text-gray-900 font-medium text-sm">
+                  {latestStatus.activeProcessCount}
+                </p>
+              </div>
+            )}
             <div>
-              <p className="text-gray-500 mb-1">OS Version</p>
-              <p className="text-gray-900 font-medium">{latestStatus.osVersion || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Hardware</p>
-              <p className="text-gray-900 font-medium">{latestStatus.hardwareModel || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">CPU Cores</p>
-              <p className="text-gray-900 font-medium">{latestStatus.cpuCount || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">CPU Usage</p>
-              <p className="text-gray-900 font-medium">
-                {latestStatus.cpuUsagePercent != null 
-                  ? `${latestStatus.cpuUsagePercent.toFixed(1)}%` 
-                  : "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Memory Total</p>
-              <p className="text-gray-900 font-medium">
-                {formatMemory(latestStatus.totalMemory)}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Memory Used</p>
-              <p className="text-gray-900 font-medium">
-                {latestStatus.memoryUsed 
-                  ? formatMemory(latestStatus.memoryUsed) 
-                  : "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Memory Free</p>
-              <p className="text-gray-900 font-medium">
-                {latestStatus.memoryFree 
-                  ? formatMemory(latestStatus.memoryFree) 
-                  : "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Memory Usage</p>
-              <p className="text-gray-900 font-medium">
-                {latestStatus.memoryUsagePercent != null 
-                  ? `${latestStatus.memoryUsagePercent.toFixed(1)}%` 
-                  : "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Battery</p>
-              <p className="text-gray-900 font-medium">
-                {latestStatus.batteryPercent != null 
-                  ? `${latestStatus.batteryPercent}%` 
-                  : "N/A"}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 mb-1">Uptime</p>
-              <p className="text-gray-900 font-medium">
-                {formatUptime(latestStatus.uptime)}
+              <p className="text-xs text-gray-500 mb-1">Last Updated</p>
+              <p className="text-gray-900 font-medium text-sm">
+                {formatRelativeTime(latestStatus.timestamp)}
               </p>
             </div>
           </div>
+
+          {/* Top Processes - Collapsible */}
+          {latestStatus.topProcessesByMemory &&
+            latestStatus.topProcessesByMemory.length > 0 && (
+              <div className="pt-2 border-t border-gray-200">
+                <button
+                  onClick={() => setProcessesExpanded(!processesExpanded)}
+                  className="w-full flex justify-between items-center text-sm text-gray-700 font-medium hover:text-gray-900 transition-colors"
+                >
+                  <span>Top Processes by Memory</span>
+                  <span className="text-gray-500">
+                    {processesExpanded ? "▼" : "▶"}
+                  </span>
+                </button>
+                {processesExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="mt-3 space-y-2"
+                  >
+                    {latestStatus.topProcessesByMemory.map((process, index) => (
+                      <div
+                        key={`${process.pid}-${index}`}
+                        className="flex justify-between items-center text-xs py-1.5 px-2 bg-gray-50 rounded"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-gray-500 font-mono">
+                            {process.pid}
+                          </span>
+                          <span className="text-gray-900 font-medium truncate">
+                            {process.name}
+                          </span>
+                        </div>
+                        <span className="text-gray-700 font-medium ml-2">
+                          {formatProcessMemory(process.memory)}
+                        </span>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
+            )}
         </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 

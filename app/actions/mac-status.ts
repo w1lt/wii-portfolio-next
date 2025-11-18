@@ -18,6 +18,7 @@ export async function getMacStatuses() {
       totalMemory: status.totalMemory ? status.totalMemory.toString() : null,
       memoryUsed: status.memoryUsed ? status.memoryUsed.toString() : null,
       memoryFree: status.memoryFree ? status.memoryFree.toString() : null,
+      topProcessesByMemory: status.topProcessesByMemory ? JSON.parse(status.topProcessesByMemory) : null,
       timestamp: status.timestamp.toISOString(),
       receivedAt: status.receivedAt.toISOString(),
     }));
