@@ -11,8 +11,13 @@ interface MacStatus {
   osVersion: string | null;
   hardwareModel: string | null;
   cpuCount: number | null;
+  cpuUsagePercent: number | null;
   totalMemory: string | null;
+  memoryUsed: string | null;
+  memoryFree: string | null;
+  memoryUsagePercent: number | null;
   uptime: number | null;
+  batteryPercent: number | null;
   timestamp: string;
   receivedAt: string;
 }
@@ -57,29 +62,33 @@ function MacStatusPage() {
     return `${minutes}m`;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
+  const formatRelativeTime = (dateString: string) => {
+    const now = new Date();
+    const then = new Date(dateString);
+    const diffMs = now.getTime() - then.getTime();
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSeconds < 60) {
+      return `${diffSeconds} second${diffSeconds !== 1 ? "s" : ""} ago`;
+    } else if (diffMinutes < 60) {
+      return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+    } else {
+      return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+    }
   };
 
-  // Group by deviceId
-  const groupedByDevice = statuses.reduce((acc, status) => {
-    const deviceId = status.deviceId;
-    if (!acc[deviceId]) {
-      acc[deviceId] = [];
-    }
-    acc[deviceId].push(status);
-    return acc;
-  }, {} as Record<string, MacStatus[]>);
-
-  // Get latest status for each device
-  const latestStatuses = Object.entries(groupedByDevice).map(
-    ([, deviceStatuses]) => {
-      return deviceStatuses.sort(
+  // Get the most recent status (single device)
+  const latestStatus = statuses.length > 0 
+    ? statuses.sort(
         (a, b) =>
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-      )[0];
-    }
-  );
+      )[0]
+    : null;
 
   if (loading) {
     return (
@@ -108,7 +117,7 @@ function MacStatusPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-6">
+    <div className="max-w-4xl mx-auto p-4 md:p-6">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -117,84 +126,89 @@ function MacStatusPage() {
         Mac Status
       </motion.h1>
 
-      {latestStatuses.length === 0 ? (
+      {!latestStatus ? (
         <div className="text-center py-12">
           <p className="text-gray-600 text-lg">No status data available yet.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {latestStatuses.map((status, index) => (
-            <motion.div
-              key={status.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 md:p-6"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-                  {status.hostname || status.deviceId}
-                </h2>
-                <span className="text-xs text-gray-500 bg-green-100 px-2 py-1 rounded">
-                  Online
-                </span>
-              </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="text-center mb-4">
+            <p className="text-sm text-gray-500">
+              Updated {formatRelativeTime(latestStatus.timestamp)}
+            </p>
+          </div>
 
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-gray-500">Device ID</p>
-                    <p className="font-mono text-xs text-gray-900 truncate">
-                      {status.deviceId}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">OS Version</p>
-                    <p className="text-gray-900">{status.osVersion || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Hardware</p>
-                    <p className="text-gray-900">
-                      {status.hardwareModel || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">CPU Cores</p>
-                    <p className="text-gray-900">{status.cpuCount || "N/A"}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Memory</p>
-                    <p className="text-gray-900">
-                      {formatMemory(status.totalMemory)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Uptime</p>
-                    <p className="text-gray-900">
-                      {formatUptime(status.uptime)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-gray-200">
-                  <p className="text-xs text-gray-500">
-                    Last updated: {formatDate(status.timestamp)}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {statuses.length > 0 && (
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
-            Showing {latestStatuses.length} device
-            {latestStatuses.length !== 1 ? "s" : ""} • Total records:{" "}
-            {statuses.length}
-          </p>
-        </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <p className="text-gray-500 mb-1">OS Version</p>
+              <p className="text-gray-900 font-medium">{latestStatus.osVersion || "N/A"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Hardware</p>
+              <p className="text-gray-900 font-medium">{latestStatus.hardwareModel || "N/A"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">CPU Cores</p>
+              <p className="text-gray-900 font-medium">{latestStatus.cpuCount || "N/A"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">CPU Usage</p>
+              <p className="text-gray-900 font-medium">
+                {latestStatus.cpuUsagePercent != null 
+                  ? `${latestStatus.cpuUsagePercent.toFixed(1)}%` 
+                  : "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Memory Total</p>
+              <p className="text-gray-900 font-medium">
+                {formatMemory(latestStatus.totalMemory)}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Memory Used</p>
+              <p className="text-gray-900 font-medium">
+                {latestStatus.memoryUsed 
+                  ? formatMemory(latestStatus.memoryUsed) 
+                  : "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Memory Free</p>
+              <p className="text-gray-900 font-medium">
+                {latestStatus.memoryFree 
+                  ? formatMemory(latestStatus.memoryFree) 
+                  : "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Memory Usage</p>
+              <p className="text-gray-900 font-medium">
+                {latestStatus.memoryUsagePercent != null 
+                  ? `${latestStatus.memoryUsagePercent.toFixed(1)}%` 
+                  : "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Battery</p>
+              <p className="text-gray-900 font-medium">
+                {latestStatus.batteryPercent != null 
+                  ? `${latestStatus.batteryPercent}%` 
+                  : "N/A"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 mb-1">Uptime</p>
+              <p className="text-gray-900 font-medium">
+                {formatUptime(latestStatus.uptime)}
+              </p>
+            </div>
+          </div>
+        </motion.div>
       )}
     </div>
   );

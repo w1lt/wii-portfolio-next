@@ -16,6 +16,8 @@ export async function getMacStatuses() {
     const serializedStatuses = statuses.map((status) => ({
       ...status,
       totalMemory: status.totalMemory ? status.totalMemory.toString() : null,
+      memoryUsed: status.memoryUsed ? status.memoryUsed.toString() : null,
+      memoryFree: status.memoryFree ? status.memoryFree.toString() : null,
       timestamp: status.timestamp.toISOString(),
       receivedAt: status.receivedAt.toISOString(),
     }));

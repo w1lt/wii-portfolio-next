@@ -22,16 +22,21 @@ model GuestbookEntry {
 }
 
 model MacStatus {
-  id            String   @id @default(cuid())
-  deviceId      String
-  hostname      String?
-  osVersion     String?
-  hardwareModel String?
-  cpuCount      Int?
-  totalMemory   BigInt?
-  uptime        Int?
-  timestamp     DateTime
-  receivedAt    DateTime @default(now())
+  id                 String   @id @default(cuid())
+  deviceId           String
+  hostname           String?
+  osVersion          String?
+  hardwareModel      String?
+  cpuCount           Int?
+  cpuUsagePercent    Float?
+  totalMemory        BigInt?
+  memoryUsed         BigInt?
+  memoryFree         BigInt?
+  memoryUsagePercent Float?
+  uptime             Int?
+  batteryPercent     Int?
+  timestamp          DateTime
+  receivedAt         DateTime @default(now())
 
   @@map("mac_status")
   @@index([deviceId])
