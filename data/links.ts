@@ -23,6 +23,12 @@ const links = [
     route: "/resume",
     gradient: "from-purple-800 via-purple-900 to-black",
   },
+  {
+    name: "mac-status",
+    icon: "💻",
+    route: "/mac-status",
+    gradient: "from-blue-800 via-blue-900 to-black",
+  },
 ];
 
 export default links;

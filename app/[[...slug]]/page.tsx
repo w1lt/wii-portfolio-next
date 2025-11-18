@@ -11,6 +11,7 @@ import ProjectsPage from "@/components/pages/ProjectsPage";
 import SpotifyPage from "@/components/pages/SpotifyPage";
 import ResumePage from "@/components/pages/ResumePage";
 import GuestbookPage from "@/components/pages/GuestbookPage";
+import MacStatusPage from "@/components/pages/MacStatusPage";
 import HomePage from "@/components/pages/HomePage";
 
 export default function Page() {
@@ -77,6 +78,11 @@ export default function Page() {
         return {
           buttonText: "Download PDF",
           buttonAction: () => (window.location.href = "/resume/pdf"),
+        };
+      case "mac-status":
+        return {
+          buttonText: "Refresh",
+          buttonAction: () => window.location.reload(),
         };
       default:
         return {
@@ -202,6 +208,8 @@ export default function Page() {
         return <ResumePage />;
       case "guestbook":
         return <GuestbookPage />;
+      case "mac-status":
+        return <MacStatusPage />;
       default:
         return <ExperiencePage />;
     }

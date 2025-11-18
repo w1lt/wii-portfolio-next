@@ -21,3 +21,21 @@ model GuestbookEntry {
   @@index([fingerprint])
 }
 
+model MacStatus {
+  id            String   @id @default(cuid())
+  deviceId      String
+  hostname      String?
+  osVersion     String?
+  hardwareModel String?
+  cpuCount      Int?
+  totalMemory   BigInt?
+  uptime        Int?
+  timestamp     DateTime
+  receivedAt    DateTime @default(now())
+
+  @@map("mac_status")
+  @@index([deviceId])
+  @@index([timestamp])
+  @@index([hostname])
+}
+
